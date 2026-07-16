@@ -147,6 +147,14 @@ tr:hover td{background:rgba(118,185,0,0.04)}
 .empty-state{text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem}
 .empty-state .icon{font-size:2.5rem;margin-bottom:0.5rem;opacity:0.5}
 
+/* Pagination */
+.pagination{display:flex;justify-content:center;align-items:center;gap:0.4rem;padding:1rem;border-top:1px solid var(--rule);flex-wrap:wrap}
+.pagination button{background:var(--bg3);border:1px solid var(--rule);color:var(--ink);border-radius:6px;padding:0.35rem 0.7rem;font-size:0.8rem;cursor:pointer;transition:all 0.2s;min-width:32px}
+.pagination button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.pagination button:disabled{opacity:0.35;cursor:not-allowed}
+.pagination button.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
+.pagination .page-info{color:var(--muted);font-size:0.8rem;margin:0 0.5rem}
+
 /* Hidden */
 .view{display:none;width:100%;min-height:0}
 .view.active{display:block}
@@ -313,6 +321,7 @@ tr:hover td{background:rgba(118,185,0,0.04)}
               <tbody id="recordsBody"></tbody>
             </table>
           </div>
+          <div class="pagination" id="recordsPagination"></div>
         </div>
       </div>
     </div>
@@ -393,6 +402,8 @@ var scenes=['正常','雨雾增强','夜间增强','逆光修复','正常','雨�
 var records=[];
 var currentResult=null;
 var processing=false;
+var recordsPage=1;
+var recordsPerPage=20;
 var demoScenes={rain:'雨雾增强',night:'夜间增强',backlight:'逆光修复'};
 
 function stringHash(str){
@@ -417,41 +428,55 @@ function generateMockResult(sourceKey,forcedScene){
 
 // ===== STORAGE =====
 function saveRecords(){try{localStorage.setItem('zst_records',JSON.stringify(records));}catch(e){}}
-function loadRecords(){try{var d=localStorage.getItem('zst_records');if(d){records=JSON.parse(d);if(records.length>0&&records[0].date)return;}}catch(e){}initDefaultRecords();}
+function loadRecords(){try{var d=localStorage.getItem('zst_records');if(d){records=JSON.parse(d);if(records.length>=180&&records[0].date)return;}}catch(e){}initDefaultRecords();}
 function clearStorage(){try{localStorage.removeItem('zst_records');}catch(e){}}
 
 // ===== INIT =====
 function init(){loadRecords();renderDash();renderRecords();renderDevices();populateYearSelect();populateMonthSelect();updateDaySelect();if(!window._devTimer)window._devTimer=setInterval(updateDeviceMetrics,2000);}
 function initDefaultRecords(){
-  var dates=['2026-07-16','2026-07-15','2026-07-14','2026-07-13','2026-07-12','2026-07-11','2026-07-10','2026-06-28','2026-06-15','2026-05-03'];
-  var times=['08:12:34','09:45:21','11:30:55','13:22:18','15:47:09','17:33:42','19:15:28','21:08:51','23:45:13','01:22:37','03:55:49','05:18:02','07:05:26','10:38:44','12:20:59','14:52:11','16:35:38','18:48:25','20:30:17','22:14:03','00:08:45','04:42:19','06:27:53','11:11:11'];
-  var base=[
-    {plate:'京A·88X88',type:'小型客车',scene:'雨雾增强',conf:'97.2%',status:'已上报'},
-    {plate:'沪B·66Y66',type:'SUV',scene:'正常',conf:'98.5%',status:'已上报'},
-    {plate:'粤C·99Y99',type:'大型货车',scene:'正常',conf:'94.1%',status:'已上报'},
-    {plate:'苏D·77X77',type:'中型客车',scene:'夜间增强',conf:'91.8%',status:'已上报'},
-    {plate:'浙E·55Z55',type:'面包车',scene:'正常',conf:'96.3%',status:'已上报'},
-    {plate:'川F·33W33',type:'轿车',scene:'逆光修复',conf:'89.5%',status:'已上报'},
-    {plate:'鲁G·11V11',type:'出租车',scene:'正常',conf:'99.1%',status:'已上报'},
-    {plate:'京A·22Y22',type:'小型客车',scene:'雨雾增强',conf:'93.7%',status:'已上报'},
-    {plate:'沪B·44Z44',type:'SUV',scene:'正常',conf:'97.8%',status:'已上报'},
-    {plate:'粤C·66X66',type:'轿车',scene:'正常',conf:'98.2%',status:'已上报'},
-    {plate:'津D·77Y77',type:'大型货车',scene:'夜间增强',conf:'86.4%',status:'已上报'},
-    {plate:'冀E·88Z88',type:'中型客车',scene:'雨雾增强',conf:'92.1%',status:'已上报'},
-    {plate:'晋F·99X99',type:'面包车',scene:'逆光修复',conf:'88.7%',status:'已上报'},
-    {plate:'辽G·11Y11',type:'出租车',scene:'正常',conf:'97.5%',status:'已上报'},
-    {plate:'吉H·22Z22',type:'SUV',scene:'正常',conf:'98.9%',status:'已上报'},
-    {plate:'黑J·33X33',type:'小型客车',scene:'雨雾增强',conf:'94.6%',status:'已上报'},
-    {plate:'苏K·44Y44',type:'轿车',scene:'夜间增强',conf:'89.2%',status:'已上报'},
-    {plate:'皖L·55Z55',type:'大型货车',scene:'正常',conf:'95.8%',status:'已上报'},
-    {plate:'闽M·66X66',type:'中型客车',scene:'逆光修复',conf:'87.3%',status:'已上报'},
-    {plate:'赣N·77Y77',type:'面包车',scene:'正常',conf:'96.7%',status:'已上报'}
-  ];
-  records=base.map(function(r,i){
-    r.date=dates[i%dates.length];
-    r.time=times[i%times.length];
-    return r;
-  });
+  var plates=['京A·88X88','沪B·66Y66','粤C·99Y99','苏D·77X77','浙E·55Z55','川F·33W33','鲁G·11V11','津D·77Y77','冀E·88Z88','晋F·99X99','辽G·11Y11','吉H·22Z22','黑J·33X33','苏K·44Y44','皖L·55Z55','闽M·66X66','赣N·77Y77','豫P·12Q34','鄂Q·56R78','湘R·90S12','桂T·34U56','琼V·78W90','渝X·12Y34','贵Z·56A78','云B·90C12','陕D·34E56','甘F·78G90','青H·12I34','宁J·56K78','新L·90M12'];
+  var types=['小型客车','SUV','大型货车','中型客车','面包车','轿车','出租车','公交车','摩托车','皮卡车'];
+  var scenes=['正常','雨雾增强','夜间增强','逆光修复'];
+  var sceneWeights=[0.55,0.15,0.18,0.12];
+  var confRanges={'正常':[96.0,99.5],'雨雾增强':[87.0,94.0],'夜间增强':[84.0,92.0],'逆光修复':[81.0,90.0]};
+
+  function randInt(n){return Math.floor(Math.random()*n);}
+  function randTime(){
+    var h=randInt(24);
+    var m=randInt(60);
+    var s=randInt(60);
+    return (h<10?'0'+h:''+h)+':'+(m<10?'0'+m:''+m)+':'+(s<10?'0'+s:''+s);
+  }
+  function randDate(){
+    var start=new Date(2025,0,1);
+    var end=new Date(2026,11,31);
+    var t=start.getTime()+Math.random()*(end.getTime()-start.getTime());
+    var d=new Date(t);
+    return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');
+  }
+  function pickScene(){
+    var r=Math.random();
+    var cum=0;
+    for(var i=0;i<scenes.length;i++){cum+=sceneWeights[i];if(r<=cum)return scenes[i];}
+    return scenes[0];
+  }
+
+  records=[];
+  for(var i=0;i<180;i++){
+    var scene=pickScene();
+    var range=confRanges[scene];
+    var conf=(range[0]+Math.random()*(range[1]-range[0])).toFixed(1)+'%';
+    records.push({
+      date:randDate(),
+      time:randTime(),
+      plate:plates[i%plates.length],
+      type:types[i%types.length],
+      scene:scene,
+      conf:conf,
+      status:'已上报'
+    });
+  }
+  records.sort(function(a,b){return (b.date+' '+b.time).localeCompare(a.date+' '+a.time);});
   saveRecords();
 }
 
@@ -664,18 +689,53 @@ function resetProcess(){
 function renderRecords(){
   var tb=document.getElementById('recordsBody');tb.innerHTML='';
   var filtered=getFilteredRecords();
-  document.getElementById('r-count').textContent='共 '+filtered.length+' 条';
-  if(filtered.length===0){
+  var total=filtered.length;
+  document.getElementById('r-count').textContent='共 '+total+' 条';
+  if(total===0){
     tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="icon">📭</div>暂无符合条件的记录</div></td></tr>';
+    document.getElementById('recordsPagination').innerHTML='';
     return;
   }
-  filtered.forEach(function(r){
+  var totalPages=Math.ceil(total/recordsPerPage);
+  if(recordsPage>totalPages)recordsPage=totalPages;
+  if(recordsPage<1)recordsPage=1;
+  var start=(recordsPage-1)*recordsPerPage;
+  var end=Math.min(start+recordsPerPage,total);
+  var pageData=filtered.slice(start,end);
+  pageData.forEach(function(r){
     var tr=document.createElement('tr');
     var sceneBadge=r.scene==='正常'?'<span class="badge badge-success">正常</span>':'<span class="badge badge-info">'+r.scene+'</span>';
     var datetime=(r.date||'')+' '+r.time;
     tr.innerHTML='<td>'+datetime+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+sceneBadge+'</td><td>'+r.conf+'</td><td>~0.18s</td><td><button class="btn btn-sm" onclick="showToast(\'查看详情: '+r.plate+'\')">查看</button></td>';
     tb.appendChild(tr);
   });
+  renderPagination(totalPages,total,start,end);
+}
+
+function renderPagination(totalPages,total,start,end){
+  var container=document.getElementById('recordsPagination');
+  var html='';
+  html+='<button onclick="changePage(recordsPage-1)" '+(recordsPage<=1?'disabled':'')+'>上一页</button>';
+  var maxButtons=7;
+  var begin=1,endP=totalPages;
+  if(totalPages>maxButtons){
+    var half=Math.floor(maxButtons/2);
+    begin=Math.max(1,recordsPage-half);
+    endP=Math.min(totalPages,begin+maxButtons-1);
+    if(endP-begin<maxButtons-1)begin=Math.max(1,endP-maxButtons+1);
+  }
+  for(var i=begin;i<=endP;i++){
+    html+='<button class="'+(i===recordsPage?'active':'')+'" onclick="changePage('+i+')">'+i+'</button>';
+  }
+  html+='<button onclick="changePage(recordsPage+1)" '+(recordsPage>=totalPages?'disabled':'')+'>下一页</button>';
+  html+='<span class="page-info">第 '+recordsPage+' / '+totalPages+' 页（'+total+' 条）</span>';
+  container.innerHTML=html;
+}
+
+function changePage(p){
+  recordsPage=p;
+  renderRecords();
+  document.getElementById('recordsBody').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function getFilteredRecords(){
@@ -696,7 +756,7 @@ function getFilteredRecords(){
   });
 }
 
-function filterRecords(){renderRecords();showToast('🔍 筛选完成');}
+function filterRecords(){recordsPage=1;renderRecords();showToast('🔍 筛选完成');}
 
 function resetFilters(){
   document.getElementById('r-year').value='';
@@ -705,6 +765,7 @@ function resetFilters(){
   document.getElementById('r-scene').value='';
   document.getElementById('r-plateFilter').value='';
   updateDaySelect();
+  recordsPage=1;
   renderRecords();
   showToast('↺ 筛选已重置');
 }
