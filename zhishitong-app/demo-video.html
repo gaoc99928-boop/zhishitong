@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智视通 — 产品演示视频</title>
+<style>
+:root{--bg:#0b1120;--bg2:#151e32;--bg3:#1e293b;--ink:#f1f5f9;--muted:#94a3b8;--rule:#334155;--accent:#76b900;--font:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;--mono:'SF Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:#000;color:var(--ink);display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
+.stage{width:960px;height:600px;background:var(--bg);border:1px solid var(--rule);border-radius:12px;position:relative;overflow:hidden}
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:100;transition:opacity 0.5s}
+.overlay.hidden{opacity:0;pointer-events:none}
+.overlay h1{font-size:2rem;margin-bottom:0.5rem}
+.overlay p{color:var(--muted);margin-bottom:1.5rem}
+.play-btn{background:var(--accent);border:none;border-radius:50%;width:64px;height:64px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.5rem;color:#000;transition:transform 0.2s}
+.play-btn:hover{transform:scale(1.1)}
+.screen{position:absolute;inset:0;opacity:0;transition:opacity 0.6s;pointer-events:none}
+.screen.active{opacity:1;pointer-events:auto}
+
+/* Login screen */
+.login-sc{display:flex;align-items:center;justify-content:center;flex-direction:column}
+.login-sc .box{background:var(--bg2);border:1px solid var(--rule);border-radius:16px;padding:2rem;width:320px}
+.login-sc .box h2{font-size:1.25rem;margin-bottom:0.3rem}
+.login-sc .box .sub{color:var(--muted);font-size:0.8rem;margin-bottom:1rem}
+.login-sc .box .inp{background:var(--bg3);border:1px solid var(--rule);border-radius:8px;padding:0.5rem 0.75rem;color:var(--ink);margin-bottom:0.5rem;font-size:0.85rem}
+.login-sc .box .btn{background:var(--accent);border:none;border-radius:8px;padding:0.6rem;color:#000;font-weight:600;font-size:0.9rem;text-align:center;margin-top:0.5rem}
+.cursor{width:12px;height:12px;background:var(--accent);border-radius:50%;position:absolute;z-index:200;pointer-events:none;transition:all 0.4s ease;box-shadow:0 0 8px var(--accent)}
+
+/* Dashboard */
+.dash-sc{padding:1.5rem}
+.dash-sc .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.dash-sc .header h2{font-size:1.1rem}
+.dash-sc .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem}
+.dash-sc .c{background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:1rem}
+.dash-sc .c .l{font-size:0.7rem;color:var(--muted)}
+.dash-sc .c .v{font-size:1.4rem;font-weight:700;color:var(--accent);font-family:var(--mono)}
+.dash-sc .panel{background:var(--bg2);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.dash-sc .panel .ph{padding:0.75rem 1rem;border-bottom:1px solid var(--rule);font-size:0.85rem;font-weight:600;display:flex;justify-content:space-between}
+.dash-sc .panel .pb{padding:0.5rem 1rem}
+.dash-sc .panel table{width:100%;font-size:0.75rem;border-collapse:collapse}
+.dash-sc .panel td,.dash-sc .panel th{padding:0.4rem 0;border-bottom:1px solid var(--rule);color:var(--muted)}
+
+/* Process */
+.proc-sc{padding:1.5rem}
+.proc-sc .steps{display:flex;gap:0.75rem;margin-bottom:1rem}
+.proc-sc .st{flex:1;text-align:center;padding:0.75rem;background:var(--bg2);border:1px solid var(--rule);border-radius:8px;opacity:0.4;transition:all 0.4s}
+.proc-sc .st.on{opacity:1;border-color:var(--accent)}
+.proc-sc .st .n{width:24px;height:24px;border-radius:50%;background:var(--bg3);display:inline-flex;align-items:center;justify-content:center;font-size:0.7rem;margin-bottom:0.3rem}
+.proc-sc .st.on .n{background:var(--accent);color:#000}
+.proc-sc .st h5{font-size:0.75rem}
+.proc-sc .upload{background:var(--bg2);border:2px dashed var(--rule);border-radius:12px;padding:2rem;text-align:center}
+.proc-sc .upload .ic{font-size:2rem;margin-bottom:0.5rem}
+.proc-sc .result{background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:1rem;display:none}
+.proc-sc .result.on{display:block}
+.proc-sc .cmp{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem}
+.proc-sc .cmp .box{background:var(--bg3);border-radius:8px;padding:0.5rem;text-align:center;font-size:0.7rem;color:var(--muted)}
+.proc-sc .cmp .box .img{width:100%;height:80px;background:linear-gradient(135deg,#1e293b,#334155);border-radius:6px;margin-top:0.3rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.65rem}
+.proc-sc .res-card{background:linear-gradient(135deg,rgba(118,185,0,0.08),rgba(129,140,248,0.08));border:1px solid rgba(118,185,0,0.25);border-radius:10px;padding:0.75rem}
+.proc-sc .res-card h4{color:var(--accent);font-size:0.8rem;margin-bottom:0.5rem}
+.proc-sc .res-row{display:flex;gap:1.5rem;flex-wrap:wrap}
+.proc-sc .res-row .it{min-width:80px}
+.proc-sc .res-row .it .lb{font-size:0.65rem;color:var(--muted)}
+.proc-sc .res-row .it .vl{font-size:0.85rem;font-weight:600;font-family:var(--mono)}
+
+/* Records */
+.rec-sc{padding:1.5rem}
+.rec-sc .fbar{display:flex;gap:0.5rem;margin-bottom:0.75rem}
+.rec-sc .fbar .fi{background:var(--bg3);border:1px solid var(--rule);border-radius:6px;padding:0.35rem 0.5rem;color:var(--ink);font-size:0.75rem}
+.rec-sc .panel{background:var(--bg2);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.rec-sc .panel .ph{padding:0.75rem 1rem;border-bottom:1px solid var(--rule);font-size:0.85rem;font-weight:600}
+.rec-sc .panel table{width:100%;font-size:0.75rem;border-collapse:collapse}
+.rec-sc .panel td,.rec-sc .panel th{padding:0.4rem 0.75rem;border-bottom:1px solid var(--rule);color:var(--muted)}
+
+/* Controls */
+.controls{position:absolute;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--rule);padding:0.5rem 1rem;display:flex;align-items:center;gap:1rem;z-index:50}
+.controls .progress{flex:1;height:4px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.controls .progress .fill{height:100%;background:var(--accent);width:0%;transition:width 0.3s}
+.controls .time{font-size:0.7rem;color:var(--muted);font-family:var(--mono);min-width:70px;text-align:right}
+.controls .btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0.2rem 0.4rem}
+.controls .btn:hover{color:var(--ink)}
+
+/* Caption */
+.caption{position:absolute;top:1rem;left:1rem;background:rgba(11,17,32,0.9);border:1px solid var(--rule);border-radius:8px;padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--muted);z-index:50;opacity:0;transition:opacity 0.4s}
+.caption.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<div class="overlay" id="startOverlay">
+  <h1>智视通 · 产品演示</h1>
+  <p>NVIDIA Jetson Orin Nano 边缘AI图像增强与识别系统</p>
+  <button class="play-btn" onclick="startDemo()">▶</button>
+</div>
+
+<div class="cursor" id="cursor"></div>
+<div class="caption" id="caption"></div>
+
+<!-- Screen 1: Login -->
+<div class="screen login-sc active" id="sc-login">
+  <div class="box" id="loginBox">
+    <h2>智视通</h2>
+    <div class="sub">交通图像增强与识别系统</div>
+    <div class="inp" id="inp-user">admin</div>
+    <div class="inp" id="inp-pass">••••••</div>
+    <div class="btn" id="btn-login">登录系统</div>
+  </div>
+</div>
+
+<!-- Screen 2: Dashboard -->
+<div class="screen dash-sc" id="sc-dash">
+  <div class="header"><h2>📊 仪表盘</h2><span style="color:var(--muted);font-size:0.75rem">智视通 / 概览</span></div>
+  <div class="cards">
+    <div class="c"><div class="l">今日过车数</div><div class="v" id="v1">0</div></div>
+    <div class="c"><div class="l">识别准确率</div><div class="v" id="v2">0%</div></div>
+    <div class="c"><div class="l">图像增强</div><div class="v" id="v3">0</div></div>
+    <div class="c"><div class="l">设备在线率</div><div class="v">100%</div></div>
+  </div>
+  <div class="panel">
+    <div class="ph">📡 实时过车监控 <span style="color:var(--accent);font-size:0.7rem">● LIVE</span></div>
+    <div class="pb">
+      <table>
+        <tr><th>时间</th><th>车牌</th><th>车型</th><th>场景</th></tr>
+        <tr id="r1"><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+        <tr id="r2"><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+        <tr id="r3"><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 3: Process -->
+<div class="screen proc-sc" id="sc-proc">
+  <div style="font-size:1.1rem;font-weight:600;margin-bottom:0.75rem">🖼️ 图像处理</div>
+  <div class="steps">
+    <div class="st on" id="p1"><div class="n">1</div><h5>上传图像</h5></div>
+    <div class="st" id="p2"><div class="n">2</div><h5>图像增强</h5></div>
+    <div class="st" id="p3"><div class="n">3</div><h5>车辆识别</h5></div>
+    <div class="st" id="p4"><div class="n">4</div><h5>结果输出</h5></div>
+  </div>
+  <div class="upload" id="procUpload">
+    <div class="ic">🖼️</div>
+    <div style="font-size:0.85rem;color:var(--ink)">点击或拖拽上传车辆图像</div>
+    <div style="font-size:0.75rem;color:var(--muted)">支持 JPG、PNG、BMP</div>
+  </div>
+  <div class="result" id="procResult">
+    <div class="cmp">
+      <div class="box">📷 原始图像<div class="img">原图预览</div></div>
+      <div class="box">✨ 增强后<div class="img" style="border:1px solid var(--accent)">增强预览</div></div>
+    </div>
+    <div class="res-card">
+      <h4>🎯 识别结果</h4>
+      <div class="res-row">
+        <div class="it"><div class="lb">车牌</div><div class="vl" id="res-plate">--</div></div>
+        <div class="it"><div class="lb">车型</div><div class="vl" id="res-type">--</div></div>
+        <div class="it"><div class="lb">置信度</div><div class="vl" id="res-conf">--</div></div>
+        <div class="it"><div class="lb">处理耗时</div><div class="vl" id="res-time">--</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 4: Records -->
+<div class="screen rec-sc" id="sc-rec">
+  <div style="font-size:1.1rem;font-weight:600;margin-bottom:0.75rem">🚗 过车记录</div>
+  <div class="fbar">
+    <div class="fi">📅 2026-07-16</div>
+    <div class="fi">全部场景 ▾</div>
+    <div class="fi">🔍 车牌搜索...</div>
+  </div>
+  <div class="panel">
+    <div class="ph">📋 记录列表</div>
+    <div style="padding:0.5rem 1rem">
+      <table>
+        <tr><th>时间</th><th>车牌</th><th>车型</th><th>场景</th><th>置信度</th></tr>
+        <tr id="rr1"><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+        <tr id="rr2"><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+        <tr id="rr3"><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+        <tr id="rr4"><td>--</td><td>--</td><td>--</td><td>--</td><td>--</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="btn" onclick="togglePlay()" id="playBtn">⏸</button>
+  <div class="progress"><div class="fill" id="prog"></div></div>
+  <div class="time" id="timer">00:00 / 02:30</div>
+</div>
+
+</div>
+
+<script>
+var playing=false;var current=0;var totalSteps=12;var timer=null;var paused=false;
+var captions=[
+  '演示开始：智视通交通图像增强与识别系统','',
+  '第一步：登录系统。使用管理员账号进入控制台','',
+  '第二步：查看仪表盘。实时掌握过车数、准确率与设备状态','',
+  '第三步：进入图像处理页面，上传雨雾天气下的模糊车辆图像','',
+  '系统正在执行四阶段流水线：去噪增强 → 车辆检测 → 车牌识别 → 结果生成','',
+  '增强完成！左侧为原始模糊图像，右侧为AI修复后的清晰图像','',
+  '识别结果：车牌号、车型、置信度、处理耗时一目了然','',
+  '第四步：保存结果后，进入过车记录页面查看历史数据','',
+  '支持按日期、场景、车牌号多维度筛选，一键导出CSV报表','',
+  '系统基于 NVIDIA Jetson Orin Nano 边缘计算平台，40 TOPS AI算力','',
+  '演示结束。感谢观看！'
+];
+var recordData=[
+  {t:'14:32:08',p:'京A·88X88',ty:'小型客车',s:'雨雾增强',c:'97.2%'},
+  {t:'14:31:45',p:'沪B·66Y66',ty:'SUV',s:'正常',c:'98.5%'},
+  {t:'14:30:12',p:'粤C·99Y99',ty:'大型货车',s:'正常',c:'94.1%'},
+  {t:'14:28:55',p:'苏D·77X77',ty:'中型客车',s:'夜间增强',c:'91.8%'}
+];
+
+function moveCursor(x,y,cb){var c=document.getElementById('cursor');c.style.left=x+'px';c.style.top=y+'px';if(cb)setTimeout(cb,500);}
+function showCap(i){var cap=document.getElementById('caption');if(captions[i]){cap.textContent=captions[i];cap.classList.add('on');}else{cap.classList.remove('on');}}
+function setScreen(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById(id).classList.add('active');}
+function updateProg(n){document.getElementById('prog').style.width=(n/totalSteps*100)+'%';var sec=Math.floor(n/totalSteps*150);var m=Math.floor(sec/60);var s=sec%60;document.getElementById('timer').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s+' / 02:30';}
+
+function runStep(n){
+  updateProg(n);showCap(n);
+  var st=document.getElementById('stage');
+  switch(n){
+    case 0: setScreen('sc-login');moveCursor(480,300);break;
+    case 1: moveCursor(480,300,function(){document.getElementById('loginBox').style.boxShadow='0 0 30px rgba(118,185,0,0.2)';});break;
+    case 2: moveCursor(480,380,function(){document.getElementById('btn-login').style.background='#5a9400';setTimeout(function(){document.getElementById('btn-login').style.background='var(--accent)';setScreen('sc-dash');},400);});break;
+    case 3: animateDash();break;
+    case 4: setScreen('sc-proc');moveCursor(480,250);break;
+    case 5: moveCursor(480,280,function(){document.getElementById('procUpload').style.borderColor='var(--accent)';setTimeout(function(){document.getElementById('procUpload').style.display='none';document.getElementById('p1').classList.remove('on');document.getElementById('p2').classList.add('on');},600);});break;
+    case 6: document.getElementById('p2').classList.remove('on');document.getElementById('p3').classList.add('on');setTimeout(function(){document.getElementById('p3').classList.remove('on');document.getElementById('p4').classList.add('on');},800);break;
+    case 7: document.getElementById('procResult').classList.add('on');document.getElementById('res-plate').textContent='京A·88X88';document.getElementById('res-type').textContent='小型客车';document.getElementById('res-conf').textContent='97.2%';document.getElementById('res-time').textContent='0.21s';break;
+    case 8: setScreen('sc-rec');moveCursor(480,200);break;
+    case 9: recordData.forEach(function(d,i){var r=document.getElementById('rr'+(i+1));if(r)r.innerHTML='<td>'+d.t+'</td><td><strong>'+d.p+'</strong></td><td>'+d.ty+'</td><td><span style="color:var(--accent)">'+d.s+'</span></td><td>'+d.c+'</td>';});break;
+    case 10: moveCursor(750,150);break;
+    case 11: showCap(11);break;
+  }
+}
+
+function animateDash(){
+  var v1=0,v2=0,v3=0;var iv=setInterval(function(){v1+=38;if(v1>3842)v1=3842;document.getElementById('v1').textContent=v1.toLocaleString();v2+=3;if(v2>96)v2=96;document.getElementById('v2').textContent=v2+'%';v3+=1;if(v3>12)v3=12;document.getElementById('v3').textContent=v3;if(v1>=3842&&v2>=96&&v3>=12)clearInterval(iv);},80);
+  var rows=[{t:'14:32:08',p:'京A·88X88',ty:'小型客车',s:'雨雾增强'},{t:'14:31:45',p:'沪B·66Y66',ty:'SUV',s:'正常'},{t:'14:30:12',p:'粤C·99Y99',ty:'大型货车',s:'正常'}];
+  rows.forEach(function(r,i){setTimeout(function(){var row=document.getElementById('r'+(i+1));if(row)row.innerHTML='<td>'+r.t+'</td><td><strong>'+r.p+'</strong></td><td>'+r.ty+'</td><td><span style="color:var(--accent);font-size:0.7rem">'+r.s+'</span></td>';},300+i*300);});
+}
+
+function startDemo(){
+  document.getElementById('startOverlay').classList.add('hidden');
+  playing=true;paused=false;current=0;
+  timer=setInterval(function(){if(paused)return;if(current>totalSteps){clearInterval(timer);playing=false;document.getElementById('playBtn').textContent='↺';return;}runStep(current);current++;},2500);
+}
+
+function togglePlay(){
+  var btn=document.getElementById('playBtn');
+  if(btn.textContent==='↺'){current=0;document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById('sc-login').classList.add('active');document.getElementById('procUpload').style.display='block';document.getElementById('procUpload').style.borderColor='var(--rule)';document.getElementById('procResult').classList.remove('on');['p1','p2','p3','p4'].forEach(function(id){document.getElementById(id).classList.remove('on');});document.getElementById('p1').classList.add('on');['v1','v2','v3'].forEach(function(id){document.getElementById(id).textContent='0';});for(var i=1;i<=3;i++){document.getElementById('r'+i).innerHTML='<td>--</td><td>--</td><td>--</td><td>--</td>';document.getElementById('rr'+i).innerHTML='<td>--</td><td>--</td><td>--</td><td>--</td><td>--</td>';}startDemo();btn.textContent='⏸';return;}
+  paused=!paused;btn.textContent=paused?'▶':'⏸';
+}
+</script>
+</body>
+</html>
