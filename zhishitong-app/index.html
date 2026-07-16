@@ -437,7 +437,7 @@ function loadRecords(){try{var d=localStorage.getItem('zst_records');if(d){recor
 function clearStorage(){try{localStorage.removeItem('zst_records');}catch(e){}}
 
 // ===== INIT =====
-function init(){loadRecords();renderDash();renderRecords();renderDevices();populateYearSelect();populateMonthSelect();updateDaySelect();if(!window._devTimer)window._devTimer=setInterval(updateDeviceMetrics,2000);}
+function init(){loadRecords();renderDash();renderRecords();renderDevices();populateYearSelect();populateMonthSelect();updateDaySelect();if(!window._devTimer)window._devTimer=setInterval(updateDeviceMetrics,2000);if(!window._dashTimer)window._dashTimer=setInterval(renderDash,3000);}
 function initDefaultRecords(){
   var plates=['京A·88X88','沪B·66Y66','粤C·99Y99','苏D·77X77','浙E·55Z55','川F·33W33','鲁G·11V11','津D·77Y77','冀E·88Z88','晋F·99X99','辽G·11Y11','吉H·22Z22','黑J·33X33','苏K·44Y44','皖L·55Z55','闽M·66X66','赣N·77Y77','豫P·12Q34','鄂Q·56R78','湘R·90S12','桂T·34U56','琼V·78W90','渝X·12Y34','贵Z·56A78','云B·90C12','陕D·34E56','甘F·78G90','青H·12I34','宁J·56K78','新L·90M12'];
   var types=['小型客车','SUV','大型货车','中型客车','面包车','轿车','出租车','公交车','摩托车','皮卡车'];
@@ -527,10 +527,13 @@ function renderDash(){
     tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--muted)">暂无过车记录</td></tr>';
     return;
   }
-  records.slice(0,5).forEach(function(r){
+  var now=new Date();
+  records.slice(0,5).forEach(function(r,i){
     var tr=document.createElement('tr');
-    var datetime=(r.date||'')+' '+r.time;
-    tr.innerHTML='<td>'+datetime+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+r.conf+'</td><td><span class="badge badge-info">'+r.scene+'</span></td><td><span class="badge badge-success">'+r.status+'</span></td>';
+    var t=new Date(now.getTime()-i*15000);
+    var liveTime=t.toLocaleTimeString('zh-CN',{hour12:false});
+    var sceneBadge=r.scene==='正常'?'<span class="badge badge-success">正常</span>':'<span class="badge badge-info">'+r.scene+'</span>';
+    tr.innerHTML='<td>'+liveTime+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+r.conf+'</td><td>'+sceneBadge+'</td><td><span class="badge badge-success">'+r.status+'</span></td>';
     tb.appendChild(tr);
   });
 }
