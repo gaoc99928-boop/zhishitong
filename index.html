@@ -392,6 +392,26 @@ var currentResult=null;
 var processing=false;
 var demoScenes={rain:'雨雾增强',night:'夜间增强',backlight:'逆光修复'};
 
+function stringHash(str){
+  var h=0;
+  for(var i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h=h&h;}
+  return Math.abs(h);
+}
+function generateMockResult(sourceKey,forcedScene){
+  var hash=stringHash(sourceKey||'default');
+  var scene=forcedScene?demoScenes[forcedScene]:scenes[hash%scenes.length];
+  var confBase={'正常':96,'雨雾增强':88,'夜间增强':85,'逆光修复':82}[scene]||90;
+  var confRange={'正常':4,'雨雾增强':7,'夜间增强':8,'逆光修复':9}[scene]||10;
+  var confVal=confBase+(hash%confRange);
+  var conf=confVal.toFixed(1)+'%';
+  var score=(70+Math.floor(hash%25)).toString();
+  var p=plates[hash%plates.length];
+  var t=types[hash%types.length];
+  var color=['蓝牌','绿牌','黄牌'][hash%3];
+  if(scene!=='正常'&&(hash%100)<5){p='识别失败';conf=(confVal*0.6).toFixed(1)+'%';}
+  return{plate:p,type:t,scene:scene,conf:conf,score:score,color:color};
+}
+
 // ===== STORAGE =====
 function saveRecords(){try{localStorage.setItem('zst_records',JSON.stringify(records));}catch(e){}}
 function loadRecords(){try{var d=localStorage.getItem('zst_records');if(d){records=JSON.parse(d);return;}}catch(e){}initDefaultRecords();}
@@ -479,6 +499,7 @@ dropZone.addEventListener('drop',function(e){handleFile(e.dataTransfer.files[0])
 
 function handleFile(file){
   if(!file||processing)return;processing=true;
+  document.getElementById('fileInput').value='';
   if(!file.type.startsWith('image/')){showToast('❌ 请上传图像文件');processing=false;return;}
   document.getElementById('uploadZone').style.display='none';
   document.getElementById('processZone').style.display='block';
@@ -523,7 +544,7 @@ function runDemoProcess(img,scene){
   var startTime=Date.now();
   var step=0;
   var interval=setInterval(function(){
-    if(step>=steps.length){clearInterval(interval);finishProcess(img,startTime,scene);return;}
+    if(step>=steps.length){clearInterval(interval);finishProcess(img,startTime,scene,'demo_'+scene);return;}
     steps.forEach(function(s,i){var el=document.getElementById(s);el.classList.remove('active');if(i<step)el.classList.add('done');else if(i===step)el.classList.add('active');});
     prog.style.width=((step+1)/steps.length*100)+'%';
     txt.textContent=texts[step];
@@ -549,7 +570,7 @@ function runProcess(file){
       var startTime=Date.now();
       var step=0;
       var interval=setInterval(function(){
-        if(step>=steps.length){clearInterval(interval);finishProcess(img,startTime);return;}
+        if(step>=steps.length){clearInterval(interval);finishProcess(img,startTime,null,file.name);return;}
         steps.forEach(function(s,i){var el=document.getElementById(s);el.classList.remove('active');if(i<step)el.classList.add('done');else if(i===step)el.classList.add('active');});
         prog.style.width=((step+1)/steps.length*100)+'%';
         txt.textContent=texts[step];
@@ -562,7 +583,7 @@ function runProcess(file){
   reader.readAsDataURL(file);
 }
 
-function finishProcess(img,startTime,forcedScene){
+function finishProcess(img,startTime,forcedScene,sourceKey){
   var enh=document.getElementById('enhCanvas');
   var ectx=enh.getContext('2d');
   enh.width=img.width;enh.height=img.height;
@@ -574,28 +595,25 @@ function finishProcess(img,startTime,forcedScene){
   ectx.fillRect(0,0,enh.width,enh.height);
 
   var elapsed=((Date.now()-startTime)/1000).toFixed(2);
-  var p=plates[Math.floor(Math.random()*plates.length)];
-  var t=types[Math.floor(Math.random()*types.length)];
-  var s=forcedScene?demoScenes[forcedScene]:scenes[Math.floor(Math.random()*scenes.length)];
-  var c=(90+Math.random()*9).toFixed(1)+'%';
-  var score=(75+Math.floor(Math.random()*20)).toString();
+  var res=generateMockResult(sourceKey,forcedScene);
 
-  document.getElementById('r-plate').textContent=p;
-  document.getElementById('r-color').textContent=['蓝牌','绿牌','黄牌'][Math.floor(Math.random()*3)];
-  document.getElementById('r-type').textContent=t;
-  document.getElementById('r-conf').textContent=c;
+  document.getElementById('r-plate').textContent=res.plate;
+  document.getElementById('r-color').textContent=res.color;
+  document.getElementById('r-type').textContent=res.type;
+  document.getElementById('r-conf').textContent=res.conf;
   document.getElementById('r-time').textContent=elapsed+'s';
-  document.getElementById('r-mode').textContent=s;
-  document.getElementById('r-score').textContent=score+'/100';
+  document.getElementById('r-mode').textContent=res.scene;
+  document.getElementById('r-score').textContent=res.score+'/100';
 
-  currentResult={time:new Date().toLocaleTimeString('zh-CN',{hour12:false}),plate:p,type:t,scene:s,conf:c,status:'待上报'};
+  currentResult={time:new Date().toLocaleTimeString('zh-CN',{hour12:false}),plate:res.plate,type:res.type,scene:res.scene,conf:res.conf,status:'待上报'};
 
   document.getElementById('processZone').style.display='none';
   document.getElementById('resultZone').style.display='block';
   document.getElementById('s4').classList.add('done');
   document.getElementById('procStatus').textContent='✅ 完成';
   processing=false;
-  showToast('✅ 处理完成！');
+  if(res.plate==='识别失败'){showToast('⚠️ 识别失败，图像质量过低');}
+  else{showToast('✅ 处理完成！');}
 }
 
 function saveResult(){
@@ -607,12 +625,15 @@ function saveResult(){
 }
 
 function resetProcess(){
+  document.getElementById('fileInput').value='';
   document.getElementById('uploadZone').style.display='block';
   document.getElementById('processZone').style.display='none';
   document.getElementById('resultZone').style.display='none';
   ['s1','s2','s3','s4'].forEach(function(s){var el=document.getElementById(s);el.classList.remove('active','done');});
   document.getElementById('s1').classList.add('active');
   document.getElementById('progBar').style.width='0%';
+  document.getElementById('procText').textContent='正在加载图像...';
+  document.getElementById('procStatus').textContent='初始化...';
   currentResult=null;processing=false;
 }
 
