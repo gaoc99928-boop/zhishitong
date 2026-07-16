@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智视通 — 产品说明书</title>
+<style>
+:root{--bg:#0b1120;--bg2:#151e32;--bg3:#1e293b;--ink:#f1f5f9;--muted:#94a3b8;--rule:#334155;--accent:#76b900;--font:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;--mono:'SF Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.75}
+.container{max-width:860px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.8rem;margin-bottom:0.5rem}h2{font-size:1.2rem;margin:2rem 0 0.75rem;color:var(--accent)}h3{font-size:1rem;margin:1.25rem 0 0.5rem}
+p{color:var(--muted);margin-bottom:0.75rem;font-size:0.9rem}
+.meta{color:var(--muted);font-size:0.8rem;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--rule)}
+.card{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+.card h4{font-size:0.95rem;margin-bottom:0.5rem;color:var(--ink)}
+.card p{font-size:0.85rem;margin:0}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;margin:0.75rem 0}
+th{text-align:left;padding:0.5rem 0.65rem;color:var(--muted);font-weight:600;border-bottom:1px solid var(--rule)}
+td{padding:0.45rem 0.65rem;border-bottom:1px solid var(--rule);color:var(--muted)}
+.code{background:var(--bg3);padding:0.15rem 0.4rem;border-radius:4px;font-family:var(--mono);font-size:0.8rem;color:var(--accent)}
+ol,ul{padding-left:1.5rem;color:var(--muted);font-size:0.88rem}
+li{margin-bottom:0.4rem}
+.step{display:flex;gap:1rem;margin-bottom:1rem}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0}
+.step-body{flex:1}
+.step-body h4{font-size:0.9rem;margin-bottom:0.2rem}
+.step-body p{font-size:0.82rem;margin:0}
+.badge{display:inline-block;padding:0.15rem 0.4rem;border-radius:4px;font-size:0.7rem;margin-right:0.3rem}
+.badge-green{background:rgba(118,185,0,0.12);color:var(--accent)}
+.badge-blue{background:rgba(129,140,248,0.12);color:var(--accent2)}
+.toc{position:sticky;top:1rem;background:var(--bg2);border:1px solid var(--rule);border-radius:10px;padding:1rem;margin-bottom:2rem}
+.toc h3{font-size:0.85rem;margin-bottom:0.5rem;color:var(--muted)}.toc a{color:var(--accent);text-decoration:none;font-size:0.82rem;display:block;margin-bottom:0.3rem}
+footer{text-align:center;padding:2rem 0;color:var(--muted);font-size:0.75rem;border-top:1px solid var(--rule);margin-top:2rem}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>📘 智视通 产品说明书</h1>
+<div class="meta">版本 v2.0 · 更新日期 2026-07-16 · 硬件平台 NVIDIA Jetson Orin Nano</div>
+
+<div class="toc">
+<h3>目录</h3>
+<a href="#s1">1. 产品概述</a>
+<a href="#s2">2. 核心功能</a>
+<a href="#s3">3. 快速入门</a>
+<a href="#s4">4. 功能详解</a>
+<a href="#s5">5. 技术架构</a>
+<a href="#s6">6. 部署指南</a>
+<a href="#s7">7. 常见问题</a>
+</div>
+
+<h2 id="s1">1. 产品概述</h2>
+<p>智视通是一款面向城市路口场景的<strong>边缘AI图像增强与车辆识别系统</strong>。系统部署在路口机柜内的 NVIDIA Jetson Orin Nano 边缘计算设备上，对现有监控摄像头采集的低质量图像（雨雾、夜间、逆光场景）进行实时增强与车牌识别，结构化数据直接上报交警指挥平台。</p>
+
+<div class="card"><h4>产品定位</h4><p>不更换现有摄像头的"轻升级"方案 —— 通过边缘AI算法提升既有硬件在恶劣天气下的可用性，降低交管部门的设备更新成本。</p></div>
+
+<h2 id="s2">2. 核心功能</h2>
+<table>
+<tr><th>功能模块</th><th>说明</th><th>状态</th></tr>
+<tr><td>恶劣天气图像增强</td><td>对雨雾、夜间、逆光场景下的车辆图像进行ROI区域去噪与清晰度修复</td><td><span class="badge badge-green">已上线</span></td></tr>
+<tr><td>实时车牌识别</td><td>支持蓝牌、绿牌、黄牌识别，4路摄像头并行处理</td><td><span class="badge badge-green">已上线</span></td></tr>
+<tr><td>车型分类</td><td>小型客车/SUV/货车/面包车等7类车型自动分类</td><td><span class="badge badge-green">已上线</span></td></tr>
+<tr><td>结构化数据上报</td><td>识别结果通过MQTT/HTTPS上报交警平台，支持断网续传</td><td><span class="badge badge-green">已上线</span></td></tr>
+<tr><td>设备监控</td><td>实时监控摄像头与边缘设备运行状态、温度、负载</td><td><span class="badge badge-green">已上线</span></td></tr>
+<tr><td>历史记录管理</td><td>支持按时间、场景、车牌号筛选查询，CSV导出</td><td><span class="badge badge-green">已上线</span></td></tr>
+</table>
+
+<h2 id="s3">3. 快速入门</h2>
+
+<div class="step"><div class="step-num">1</div><div class="step-body"><h4>登录系统</h4><p>打开浏览器，访问系统地址。使用默认账号 <span class="code">admin</span> / <span class="code">admin</span> 登录。</p></div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body"><h4>查看仪表盘</h4><p>登录后进入仪表盘，查看今日过车数、识别准确率、设备在线状态等核心指标。</p></div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body"><h4>图像处理</h4><p>进入「图像处理」页面，上传或拖拽车辆图像，系统自动完成增强与识别，展示对比结果。</p></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-body"><h4>查看记录</h4><p>处理完成后，结果自动保存到「过车记录」。支持按场景、车牌号筛选和CSV导出。</p></div></div>
+
+<h2 id="s4">4. 功能详解</h2>
+
+<h3>4.1 图像处理流程</h3>
+<p>系统采用四阶段流水线处理每一张输入图像：</p>
+<ol>
+<li><strong>图像加载</strong>：支持拖拽上传或点击选择，自动校验格式（JPG/PNG/BMP）与大小（≤10MB）</li>
+<li><strong>去噪增强</strong>：对ROI区域应用 BM3D 传统去噪 + 轻量GAN深度学习增强，提升车牌区域清晰度</li>
+<li><strong>车辆识别</strong>：YOLOv8-Nano 检测车辆位置 → LPRNet 识别车牌字符 → ResNet18 分类车型</li>
+<li><strong>结果输出</strong>：生成结构化数据（车牌、车型、置信度、处理耗时），支持一键保存</li>
+</ol>
+
+<h3>4.2 设备管理</h3>
+<p>系统支持管理以下路口设备：</p>
+<ul>
+<li><strong>电警相机</strong>：抓拍闯红灯、压线等违章行为，400万像素</li>
+<li><strong>卡口相机</strong>：抓拍过车、识别车牌，400万像素</li>
+<li><strong>全景球机</strong>：全景监控与事件复核，200万像素</li>
+<li><strong>Jetson Orin Nano</strong>：边缘计算核心，处理所有推理任务</li>
+</ul>
+
+<h3>4.3 系统设置</h3>
+<p>在「系统设置」页面可调整：</p>
+<ul>
+<li>去噪强度（0-100）</li>
+<li>对比度增强幅度（0-100）</li>
+<li>识别置信度阈值（50-99%，默认85%）</li>
+<li>数据上报间隔（1-60秒）</li>
+<li>交警平台API对接地址</li>
+</ul>
+
+<h2 id="s5">5. 技术架构</h2>
+
+<h3>5.1 硬件规格</h3>
+<table>
+<tr><th>组件</th><th>规格</th></tr>
+<tr><td>边缘计算设备</td><td>NVIDIA Jetson Orin Nano 8GB</td></tr>
+<tr><td>AI算力</td><td>40 TOPS INT8</td></tr>
+<tr><td>功耗</td><td>15W（典型负载）</td></tr>
+<tr><td>摄像头接入</td><td>4路网络相机（ONVIF/RTSP）</td></tr>
+<tr><td>网络回传</td><td>4G/5G 或光纤</td></tr>
+<tr><td>防护等级</td><td>IP55 户外机柜</td></tr>
+</table>
+
+<h3>5.2 软件栈</h3>
+<table>
+<tr><th>层级</th><th>组件</th><th>版本</th></tr>
+<tr><td>操作系统</td><td>JetPack (Ubuntu 22.04)</td><td>6.0</td></tr>
+<tr><td>AI运行时</td><td>CUDA / cuDNN / TensorRT</td><td>12.2 / 8.9 / 8.6</td></tr>
+<tr><td>视频流</td><td>DeepStream + GStreamer</td><td>6.3</td></tr>
+<tr><td>检测模型</td><td>YOLOv8-Nano (TensorRT)</td><td>v2.1</td></tr>
+<tr><td>识别模型</td><td>LPRNet (TensorRT)</td><td>v1.3</td></tr>
+<tr><td>数据通信</td><td>MQTT + SQLite</td><td>--</td></tr>
+</table>
+
+<h3>5.3 性能指标</h3>
+<table>
+<tr><th>指标</th><th>数值</th></tr>
+<tr><td>单帧处理耗时</td><td>180-220ms（含增强+识别）</td></tr>
+<tr><td>4路并行帧率</td><td>15-20 fps/路</td></tr>
+<tr><td>车牌识别准确率（晴天）</td><td>≥98%</td></tr>
+<tr><td>车牌识别准确率（雨雾增强后）</td><td>≥93%</td></tr>
+<tr><td>设备运行温度</td><td>45-60°C</td></tr>
+<tr><td>数据本地缓存</td><td>7天滚动覆盖</td></tr>
+</table>
+
+<h2 id="s6">6. 部署指南</h2>
+
+<h3>6.1 环境准备</h3>
+<pre style="background:var(--bg3);border:1px solid var(--rule);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.78rem;color:var(--ink);overflow-x:auto">
+# 1. 刷写 JetPack 6.0 到 Jetson Orin Nano
+# 2. 安装依赖
+sudo apt update
+sudo apt install -y python3-pip libgstreamer1.0-dev
+
+# 3. 安装 DeepStream
+sudo apt install -y deepstream-6.3
+
+# 4. 验证 TensorRT
+/usr/src/tensorrt/bin/trtexec --version
+</pre>
+
+<h3>6.2 模型部署</h3>
+<pre style="background:var(--bg3);border:1px solid var(--rule);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.78rem;color:var(--ink);overflow-x:auto">
+# 转换 YOLOv8-Nano 为 TensorRT Engine
+python export.py --weights yolov8n.pt --imgsz 640 --batch 1
+trtexec --onnx=yolov8n.onnx --saveEngine=yolov8n.engine --fp16
+
+# 转换 LPRNet 为 TensorRT Engine
+python export_lprnet.py --weights lprnet.pt
+trtexec --onnx=lprnet.onnx --saveEngine=lprnet.engine --fp16
+
+# 放置模型到运行目录
+mkdir -p /opt/zhishitong/models
+cp *.engine /opt/zhishitong/models/
+</pre>
+
+<h3>6.3 启动服务</h3>
+<pre style="background:var(--bg3);border:1px solid var(--rule);border-radius:8px;padding:1rem;font-family:var(--mono);font-size:0.78rem;color:var(--ink);overflow-x:auto">
+cd /opt/zhishitong
+python3 app.py --config config.json
+
+# 或使用 systemd 开机自启
+sudo systemctl enable zhishitong
+sudo systemctl start zhishitong
+</pre>
+
+<h2 id="s7">7. 常见问题</h2>
+
+<div class="card"><h4>Q: 系统支持哪些摄像头品牌？</h4><p>A: 理论上支持所有符合 ONVIF 标准或提供 RTSP 流的海康、大华、宇视等主流品牌网络摄像头。</p></div>
+<div class="card"><h4>Q: 无网络时数据会丢失吗？</h4><p>A: 不会。系统内置 SQLite 本地数据库，可缓存最近7天的识别记录。网络恢复后自动批量同步至平台。</p></div>
+<div class="card"><h4>Q: 模型可以在线更新吗？</h4><p>A: 支持。云端训练新版本模型后，通过 MQTT 通道推送至边缘端，支持热切换（零停机更新）。</p></div>
+<div class="card"><h4>Q: 识别准确率受哪些因素影响？</h4><p>A: 主要因素：摄像头分辨率、安装角度、车牌污损程度、天气光照条件。雨雾场景下建议开启图像增强功能。</p></div>
+<div class="card"><h4>Q: 系统功耗和散热要求？</h4><p>A: Jetson Orin Nano 典型功耗15W，满负载约25W。户外部署需配置IP55防护机柜，夏季建议加装散热风扇。</p></div>
+
+<footer>
+<p>智视通产品说明书 v2.0 · 由 TRAE 辅助开发 · 2026-07-16</p>
+</footer>
+
+</div>
+</body>
+</html>
