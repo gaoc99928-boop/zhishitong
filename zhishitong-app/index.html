@@ -32,7 +32,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--i
 .sidebar nav a:hover,.sidebar nav a.active{color:var(--ink);background:rgba(118,185,0,0.06);border-left-color:var(--accent)}
 .sidebar nav a .icon{font-size:1rem}
 .sidebar .user{padding:1rem 1.25rem;border-top:1px solid var(--rule);font-size:0.8rem;color:var(--muted)}
-.content{flex:1;overflow-y:auto;padding:1.5rem 2rem}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:1.5rem 2rem;position:relative;min-height:0}
 .content-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
 .content-header h2{font-size:1.25rem;font-weight:600}
 .content-header .breadcrumb{color:var(--muted);font-size:0.8rem}
@@ -148,7 +148,7 @@ tr:hover td{background:rgba(118,185,0,0.04)}
 .empty-state .icon{font-size:2.5rem;margin-bottom:0.5rem;opacity:0.5}
 
 /* Hidden */
-.view{display:none}
+.view{display:none;width:100%;min-height:0}
 .view.active{display:block}
 </style>
 </head>
