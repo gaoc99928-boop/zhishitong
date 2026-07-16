@@ -531,9 +531,10 @@ function renderDash(){
   records.slice(0,5).forEach(function(r,i){
     var tr=document.createElement('tr');
     var t=new Date(now.getTime()-i*15000);
+    var liveDate=t.getFullYear()+'-'+(t.getMonth()+1).toString().padStart(2,'0')+'-'+t.getDate().toString().padStart(2,'0');
     var liveTime=t.toLocaleTimeString('zh-CN',{hour12:false});
     var sceneBadge=r.scene==='正常'?'<span class="badge badge-success">正常</span>':'<span class="badge badge-info">'+r.scene+'</span>';
-    tr.innerHTML='<td>'+liveTime+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+r.conf+'</td><td>'+sceneBadge+'</td><td><span class="badge badge-success">'+r.status+'</span></td>';
+    tr.innerHTML='<td>'+liveDate+' '+liveTime+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+r.conf+'</td><td>'+sceneBadge+'</td><td><span class="badge badge-success">'+r.status+'</span></td>';
     tb.appendChild(tr);
   });
 }
