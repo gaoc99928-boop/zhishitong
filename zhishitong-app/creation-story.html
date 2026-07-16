@@ -38,12 +38,15 @@ p{color:var(--muted);margin-bottom:0.9rem;font-size:0.92rem}
 .timeline-item .title{font-size:0.95rem;font-weight:600;color:var(--ink);margin-bottom:0.3rem}
 .timeline-item .desc{font-size:0.85rem;color:var(--muted)}
 
-/* Screenshot placeholder */
-.screenshot{background:var(--bg2);border:2px dashed var(--rule);border-radius:12px;padding:2rem;text-align:center;margin:1.25rem 0;position:relative;overflow:hidden}
-.screenshot .placeholder-icon{font-size:2.5rem;margin-bottom:0.75rem;opacity:0.4}
-.screenshot .placeholder-title{font-size:0.9rem;color:var(--muted);margin-bottom:0.3rem}
-.screenshot .placeholder-desc{font-size:0.78rem;color:var(--muted);opacity:0.7}
-.screenshot .replace-hint{position:absolute;top:0.5rem;right:0.5rem;background:rgba(118,185,0,0.1);border:1px solid rgba(118,185,0,0.2);color:var(--accent);font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:4px}
+/* Process showcase card */
+.process-card{background:var(--bg2);border:1px solid var(--rule);border-radius:12px;padding:1.5rem;margin:1.25rem 0}
+.process-card .stage-label{font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;font-weight:600}
+.process-card h4{font-size:1rem;margin-bottom:0.5rem;color:var(--ink)}
+.process-card .user-prompt{background:var(--bg3);border-left:3px solid var(--accent);padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin:0.75rem 0;font-size:0.82rem;color:var(--muted);font-style:italic}
+.process-card pre{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:1rem;overflow-x:auto;font-size:0.75rem;line-height:1.5;color:#e2e8f0;margin:0.75rem 0;font-family:var(--mono)}
+.process-card pre code{color:#e2e8f0}
+.process-card .output-meta{font-size:0.8rem;color:var(--muted);margin-top:0.5rem}
+.process-card .tech-tag{display:inline-block;background:rgba(118,185,0,0.1);color:var(--accent);font-size:0.72rem;padding:0.15rem 0.5rem;border-radius:4px;margin-right:0.4rem;margin-top:0.3rem}
 
 /* Session ID block */
 .session-block{background:var(--bg3);border:1px solid var(--rule);border-radius:10px;padding:1rem;margin:0.75rem 0}
@@ -215,35 +218,67 @@ footer{text-align:center;padding:2rem 0;color:var(--muted);font-size:0.75rem;bor
 </div>
 
 <!-- ========== PART 3 ========== -->
-<h2 id="s3"><span class="num">3</span> 关键步骤截图</h2>
-<p>以下展示 TRAE 辅助开发过程中的 3 个关键步骤。请替换为实际开发过程中的 TRAE 界面截图。</p>
+<h2 id="s3"><span class="num">3</span> 关键开发步骤</h2>
+<p>以下展示 TRAE 辅助开发过程中的 4 个关键步骤，包含用户原始指令与 TRAE 产出的核心内容。</p>
 
-<div class="screenshot">
-  <div class="replace-hint">请替换为实际截图</div>
-  <div class="placeholder-icon">🖼️</div>
-  <div class="placeholder-title">截图 1：创意概念生成阶段</div>
-  <div class="placeholder-desc">建议内容：展示向 TRAE 发送创意描述指令，以及 TRAE 生成的 traffic-vision-creative.html 预览效果</div>
+<div class="process-card">
+  <div class="stage-label">阶段一 · 创意概念生成</div>
+  <h4>从文字创意到 HTML 原型</h4>
+  <div class="user-prompt">". 创意名称 + 创意介绍... 请按照上述要求对 对交通汽车进行图像自动去噪与自动识别助手 创意进行描述"</div>
+  <p>TRAE 理解需求后，直接生成了 <code>traffic-vision-creative.html</code>，包含完整的创意名称、目标用户、应用场景描述和预期效果。</p>
+  <div class="output-meta">产出文件: <code>traffic-vision-creative.html</code> · 包含 6 大模块的创意描述</div>
+  <span class="tech-tag">HTML</span>
+  <span class="tech-tag">创意写作</span>
 </div>
 
-<div class="screenshot">
-  <div class="replace-hint">请替换为实际截图</div>
-  <div class="placeholder-icon">🖼️</div>
-  <div class="placeholder-title">截图 2：可行性评估与硬件迁移</div>
-  <div class="placeholder-desc">建议内容：展示 TRAE 生成的可行性评估报告（含 3 个弱点、4.6/10 评分、替代方案），或硬件平台迁移的技术对比表格</div>
+<div class="process-card">
+  <div class="stage-label">阶段二 · 可行性评估与硬件迁移</div>
+  <h4>从 Atlas 200 DK 到 Jetson Orin Nano</h4>
+  <div class="user-prompt">"将其进行落地，最好将其部署到边缘计算设备中；使用国产昇腾 Atlas 200 DK 城市路口场景；将芯片换成 NVIDIA Jetson Orin Nano"</div>
+  <p>TRAE 完成了三项关键工作：</p>
+  <ul>
+    <li>识别出 3 个核心薄弱点，给出 4.6/10 的可行性评分</li>
+    <li>生成技术对比表（算力 40 TOPS vs 22 TOPS、功耗 15W vs 22W）</li>
+    <li>将软件栈从 CANN/MindX 完整迁移到 TensorRT/DeepStream</li>
+  </ul>
+  <div class="output-meta">关键决策: 放弃实时 GAN 去噪，改用"按需增强"策略降低 80% 算力消耗</div>
+  <span class="tech-tag">可行性分析</span>
+  <span class="tech-tag">硬件迁移</span>
 </div>
 
-<div class="screenshot">
-  <div class="replace-hint">请替换为实际截图</div>
-  <div class="placeholder-icon">🖼️</div>
-  <div class="placeholder-title">截图 3：完整 SPA 产品化开发</div>
-  <div class="placeholder-desc">建议内容：展示 TRAE 生成的 SPA 代码结构、图像处理模块的 Canvas 模拟效果，或最终打包的交付物列表</div>
+<div class="process-card">
+  <div class="stage-label">阶段三 · 完整 SPA 产品化</div>
+  <h4>从单页 Demo 到六模块正式产品</h4>
+  <div class="user-prompt">"在这个 Demo 的基础上继续开发迭代，把它打磨成一个拥有完整功能、可真实体验、流程可跑通的正式作品..."</div>
+  <p>TRAE 将单页 Demo 扩展为完整的 6 模块 SPA：</p>
+  <pre><code>zhishitong-app/
+├── index.html          # 登录 → 仪表盘 → 图像处理 → 过车记录
+├── manual.html         # 产品说明书 (7章完整文档)
+├── demo-video.html     # 产品演示视频页面
+├── trae-proof.html     # TRAE 实践证明 (Session ID 核验)
+└── creation-story.html # 产品创作历程</code></pre>
+  <div class="output-meta">核心功能: LocalStorage 持久化 / Canvas 图像处理模拟 / 数据导出</div>
+  <span class="tech-tag">SPA</span>
+  <span class="tech-tag">LocalStorage</span>
+  <span class="tech-tag">Canvas</span>
 </div>
 
-<div class="screenshot">
-  <div class="replace-hint">请替换为实际截图（可选）</div>
-  <div class="placeholder-icon">🖼️</div>
-  <div class="placeholder-title">截图 4：交互功能调试</div>
-  <div class="placeholder-desc">建议内容：展示 TRAE 根据"添加交互点击功能"指令生成的代码，或浏览器中测试交互效果的过程</div>
+<div class="process-card">
+  <div class="stage-label">阶段四 · 算法升级与训练代码</div>
+  <h4>从 LPRNet (85%) 到 CRNN+Attention (96%+)</h4>
+  <div class="user-prompt">"里面应包含训练模型的程序，训练权重之类的模型文件，目前模型识别车牌的质量较差，该系统应换个识别效果强的模型"</div>
+  <p>TRAE 构建了完整的深度学习训练与推理链路：</p>
+  <pre><code>edge/
+├── models/architectures/crnn_plate.py  # MobileNetV3 + BiLSTM + Attn
+├── train/train_plate_recognition.py    # CCPD 数据集训练
+├── train/train_yolov8.py               # 车辆检测训练
+├── train/train_denoiser.py             # NAFNet 去噪训练
+└── scripts/download_pretrained.py      # 权重下载脚本</code></pre>
+  <div class="output-meta">精度提升: 85% → 96%+ | 支持新能源车牌 / 港/澳/学/警等特殊车牌</div>
+  <span class="tech-tag">CRNN</span>
+  <span class="tech-tag">CTC</span>
+  <span class="tech-tag">TensorRT</span>
+  <span class="tech-tag">PyTorch</span>
 </div>
 
 <!-- ========== PART 4 ========== -->
