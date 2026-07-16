@@ -295,10 +295,13 @@ tr:hover td{background:rgba(118,185,0,0.04)}
         <div class="breadcrumb">智视通 / 历史数据</div>
       </div>
       <div class="filter-bar">
-        <input type="date" id="r-date">
+        <select id="r-year" onchange="updateDaySelect()"><option value="">全部年份</option></select>
+        <select id="r-month" onchange="updateDaySelect()"><option value="">全部月份</option></select>
+        <select id="r-day"><option value="">全部日期</option></select>
         <select id="r-scene"><option value="">全部场景</option><option value="正常">正常</option><option value="雨雾增强">雨雾增强</option><option value="夜间增强">夜间增强</option><option value="逆光修复">逆光修复</option></select>
         <input type="text" id="r-plateFilter" placeholder="车牌号搜索..." style="width:160px">
         <button class="btn btn-sm btn-primary" onclick="filterRecords()">🔍 筛选</button>
+        <button class="btn btn-sm" onclick="resetFilters()">↺ 重置</button>
         <button class="btn btn-sm" onclick="exportCSV()">📥 导出 CSV</button>
       </div>
       <div class="panel">
@@ -414,24 +417,41 @@ function generateMockResult(sourceKey,forcedScene){
 
 // ===== STORAGE =====
 function saveRecords(){try{localStorage.setItem('zst_records',JSON.stringify(records));}catch(e){}}
-function loadRecords(){try{var d=localStorage.getItem('zst_records');if(d){records=JSON.parse(d);return;}}catch(e){}initDefaultRecords();}
+function loadRecords(){try{var d=localStorage.getItem('zst_records');if(d){records=JSON.parse(d);if(records.length>0&&records[0].date)return;}}catch(e){}initDefaultRecords();}
 function clearStorage(){try{localStorage.removeItem('zst_records');}catch(e){}}
 
 // ===== INIT =====
-function init(){loadRecords();renderDash();renderRecords();renderDevices();if(!window._devTimer)window._devTimer=setInterval(updateDeviceMetrics,2000);}
+function init(){loadRecords();renderDash();renderRecords();renderDevices();populateYearSelect();populateMonthSelect();updateDaySelect();if(!window._devTimer)window._devTimer=setInterval(updateDeviceMetrics,2000);}
 function initDefaultRecords(){
-  records=[
-    {time:'14:32:08',plate:'京A·88X88',type:'小型客车',scene:'雨雾增强',conf:'97.2%',status:'已上报'},
-    {time:'14:31:45',plate:'沪B·66Y66',type:'SUV',scene:'正常',conf:'98.5%',status:'已上报'},
-    {time:'14:30:12',plate:'粤C·99Y99',type:'大型货车',scene:'正常',conf:'94.1%',status:'已上报'},
-    {time:'14:28:55',plate:'苏D·77X77',type:'中型客车',scene:'夜间增强',conf:'91.8%',status:'已上报'},
-    {time:'14:27:30',plate:'浙E·55Z55',type:'面包车',scene:'正常',conf:'96.3%',status:'已上报'},
-    {time:'14:25:18',plate:'川F·33W33',type:'轿车',scene:'逆光修复',conf:'89.5%',status:'已上报'},
-    {time:'14:23:42',plate:'鲁G·11V11',type:'出租车',scene:'正常',conf:'99.1%',status:'已上报'},
-    {time:'14:21:05',plate:'京A·22Y22',type:'小型客车',scene:'雨雾增强',conf:'93.7%',status:'已上报'},
-    {time:'14:19:33',plate:'沪B·44Z44',type:'SUV',scene:'正常',conf:'97.8%',status:'已上报'},
-    {time:'14:17:50',plate:'粤C·66X66',type:'轿车',scene:'正常',conf:'98.2%',status:'已上报'}
+  var dates=['2026-07-16','2026-07-15','2026-07-14','2026-07-13','2026-07-12','2026-07-11','2026-07-10','2026-06-28','2026-06-15','2026-05-03'];
+  var times=['08:12:34','09:45:21','11:30:55','13:22:18','15:47:09','17:33:42','19:15:28','21:08:51','23:45:13','01:22:37','03:55:49','05:18:02','07:05:26','10:38:44','12:20:59','14:52:11','16:35:38','18:48:25','20:30:17','22:14:03','00:08:45','04:42:19','06:27:53','11:11:11'];
+  var base=[
+    {plate:'京A·88X88',type:'小型客车',scene:'雨雾增强',conf:'97.2%',status:'已上报'},
+    {plate:'沪B·66Y66',type:'SUV',scene:'正常',conf:'98.5%',status:'已上报'},
+    {plate:'粤C·99Y99',type:'大型货车',scene:'正常',conf:'94.1%',status:'已上报'},
+    {plate:'苏D·77X77',type:'中型客车',scene:'夜间增强',conf:'91.8%',status:'已上报'},
+    {plate:'浙E·55Z55',type:'面包车',scene:'正常',conf:'96.3%',status:'已上报'},
+    {plate:'川F·33W33',type:'轿车',scene:'逆光修复',conf:'89.5%',status:'已上报'},
+    {plate:'鲁G·11V11',type:'出租车',scene:'正常',conf:'99.1%',status:'已上报'},
+    {plate:'京A·22Y22',type:'小型客车',scene:'雨雾增强',conf:'93.7%',status:'已上报'},
+    {plate:'沪B·44Z44',type:'SUV',scene:'正常',conf:'97.8%',status:'已上报'},
+    {plate:'粤C·66X66',type:'轿车',scene:'正常',conf:'98.2%',status:'已上报'},
+    {plate:'津D·77Y77',type:'大型货车',scene:'夜间增强',conf:'86.4%',status:'已上报'},
+    {plate:'冀E·88Z88',type:'中型客车',scene:'雨雾增强',conf:'92.1%',status:'已上报'},
+    {plate:'晋F·99X99',type:'面包车',scene:'逆光修复',conf:'88.7%',status:'已上报'},
+    {plate:'辽G·11Y11',type:'出租车',scene:'正常',conf:'97.5%',status:'已上报'},
+    {plate:'吉H·22Z22',type:'SUV',scene:'正常',conf:'98.9%',status:'已上报'},
+    {plate:'黑J·33X33',type:'小型客车',scene:'雨雾增强',conf:'94.6%',status:'已上报'},
+    {plate:'苏K·44Y44',type:'轿车',scene:'夜间增强',conf:'89.2%',status:'已上报'},
+    {plate:'皖L·55Z55',type:'大型货车',scene:'正常',conf:'95.8%',status:'已上报'},
+    {plate:'闽M·66X66',type:'中型客车',scene:'逆光修复',conf:'87.3%',status:'已上报'},
+    {plate:'赣N·77Y77',type:'面包车',scene:'正常',conf:'96.7%',status:'已上报'}
   ];
+  records=base.map(function(r,i){
+    r.date=dates[i%dates.length];
+    r.time=times[i%times.length];
+    return r;
+  });
   saveRecords();
 }
 
@@ -479,7 +499,8 @@ function renderDash(){
   }
   records.slice(0,5).forEach(function(r){
     var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+r.time+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+r.conf+'</td><td><span class="badge badge-info">'+r.scene+'</span></td><td><span class="badge badge-success">'+r.status+'</span></td>';
+    var datetime=(r.date||'')+' '+r.time;
+    tr.innerHTML='<td>'+datetime+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+r.conf+'</td><td><span class="badge badge-info">'+r.scene+'</span></td><td><span class="badge badge-success">'+r.status+'</span></td>';
     tb.appendChild(tr);
   });
 }
@@ -605,7 +626,9 @@ function finishProcess(img,startTime,forcedScene,sourceKey){
   document.getElementById('r-mode').textContent=res.scene;
   document.getElementById('r-score').textContent=res.score+'/100';
 
-  currentResult={time:new Date().toLocaleTimeString('zh-CN',{hour12:false}),plate:res.plate,type:res.type,scene:res.scene,conf:res.conf,status:'待上报'};
+  var now=new Date();
+  var dateStr=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0');
+  currentResult={date:dateStr,time:now.toLocaleTimeString('zh-CN',{hour12:false}),plate:res.plate,type:res.type,scene:res.scene,conf:res.conf,status:'待上报'};
 
   document.getElementById('processZone').style.display='none';
   document.getElementById('resultZone').style.display='block';
@@ -649,16 +672,24 @@ function renderRecords(){
   filtered.forEach(function(r){
     var tr=document.createElement('tr');
     var sceneBadge=r.scene==='正常'?'<span class="badge badge-success">正常</span>':'<span class="badge badge-info">'+r.scene+'</span>';
-    tr.innerHTML='<td>'+r.time+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+sceneBadge+'</td><td>'+r.conf+'</td><td>~0.18s</td><td><button class="btn btn-sm" onclick="showToast(\'查看详情: '+r.plate+'\')">查看</button></td>';
+    var datetime=(r.date||'')+' '+r.time;
+    tr.innerHTML='<td>'+datetime+'</td><td><strong>'+r.plate+'</strong></td><td>'+r.type+'</td><td>'+sceneBadge+'</td><td>'+r.conf+'</td><td>~0.18s</td><td><button class="btn btn-sm" onclick="showToast(\'查看详情: '+r.plate+'\')">查看</button></td>';
     tb.appendChild(tr);
   });
 }
 
 function getFilteredRecords(){
-  var d=document.getElementById('r-date').value;
+  var y=document.getElementById('r-year').value;
+  var m=document.getElementById('r-month').value;
+  var d=document.getElementById('r-day').value;
   var s=document.getElementById('r-scene').value;
   var p=document.getElementById('r-plateFilter').value.toUpperCase();
   return records.filter(function(r){
+    if(!r.date)return false;
+    var parts=r.date.split('-');
+    if(y&&parts[0]!==y)return false;
+    if(m&&parts[1]!==m)return false;
+    if(d&&parts[2]!==d)return false;
     if(s&&r.scene!==s)return false;
     if(p&&r.plate.indexOf(p)<0)return false;
     return true;
@@ -667,11 +698,60 @@ function getFilteredRecords(){
 
 function filterRecords(){renderRecords();showToast('🔍 筛选完成');}
 
+function resetFilters(){
+  document.getElementById('r-year').value='';
+  document.getElementById('r-month').value='';
+  document.getElementById('r-day').value='';
+  document.getElementById('r-scene').value='';
+  document.getElementById('r-plateFilter').value='';
+  updateDaySelect();
+  renderRecords();
+  showToast('↺ 筛选已重置');
+}
+
+function populateYearSelect(){
+  var sel=document.getElementById('r-year');
+  if(sel.options.length>1)return;
+  for(var y=2026;y>=1900;y--){
+    var opt=document.createElement('option');
+    opt.value=y;opt.textContent=y+'年';
+    sel.appendChild(opt);
+  }
+}
+
+function populateMonthSelect(){
+  var sel=document.getElementById('r-month');
+  if(sel.options.length>1)return;
+  for(var m=1;m<=12;m++){
+    var opt=document.createElement('option');
+    var v=m<10?'0'+m:''+m;
+    opt.value=v;opt.textContent=v+'月';
+    sel.appendChild(opt);
+  }
+}
+
+function updateDaySelect(){
+  var y=document.getElementById('r-year').value;
+  var m=document.getElementById('r-month').value;
+  var sel=document.getElementById('r-day');
+  var cur=sel.value;
+  sel.innerHTML='<option value="">全部日期</option>';
+  var days=31;
+  if(m){days=new Date(y||2026,parseInt(m,10),0).getDate();}
+  for(var d=1;d<=days;d++){
+    var v=d<10?'0'+d:''+d;
+    var opt=document.createElement('option');
+    opt.value=v;opt.textContent=v+'日';
+    sel.appendChild(opt);
+  }
+  if(cur&&parseInt(cur,10)<=days)sel.value=cur;
+}
+
 function exportCSV(){
   var data=getFilteredRecords();
   if(data.length===0){showToast('⚠️ 没有可导出的数据');return;}
-  var csv='\uFEFF时间,车牌,车型,场景,置信度\n';
-  data.forEach(function(r){csv+=r.time+','+r.plate+','+r.type+','+r.scene+','+r.conf+'\n';});
+  var csv='\uFEFF日期,时间,车牌,车型,场景,置信度\n';
+  data.forEach(function(r){csv+=(r.date||'')+','+r.time+','+r.plate+','+r.type+','+r.scene+','+r.conf+'\n';});
   var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='过车记录_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
   showToast('📥 CSV 导出成功');
