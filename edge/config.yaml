@@ -28,10 +28,20 @@ models:
     labels: ["car", "suv", "truck", "bus", "van", "taxi"]
     
   recognizer:
-    name: "lprnet_chinese"
-    engine_path: "./models/engines/lprnet_chinese.engine"
+    # 推荐: CRNN 后端 (准确率 ~96%，支持新能源/全量74字符)
+    name: "crnn_plate"
+    backend: "crnn"  # options: crnn, lprnet
+    engine_path: "./models/engines/crnn_plate_best.engine"
+    pytorch_path: "./models/pytorch/crnn_plate_best.pt"  # 训练产出，可转 TensorRT
     input_size: [94, 24]
     charset: "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ沪京粤苏浙川鲁"
+    
+    # 备选: LPRNet 后端 (轻量，准确率 ~85%)
+    # name: "lprnet_chinese"
+    # backend: "lprnet"
+    # engine_path: "./models/engines/lprnet_chinese.engine"
+    # input_size: [94, 24]
+    # charset: "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ沪京粤苏浙川鲁"
     
   classifier:
     name: "vehicle_type_resnet18"
