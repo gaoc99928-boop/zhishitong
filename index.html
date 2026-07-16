@@ -114,7 +114,12 @@ tr:hover td{background:rgba(118,185,0,0.04)}
 .device-card .metrics{display:flex;gap:1rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--rule)}
 .device-card .metric{text-align:center;flex:1}
 .device-card .metric .num{font-size:1rem;font-weight:700;color:var(--accent);font-family:var(--mono)}
-.device-card .metric .lab{font-size:0.65rem;color:var(--muted)}
+.device-card .metric .lab{font-size:0.65rem;color:var(--muted);margin-bottom:0.3rem}
+.device-card .bar-track{width:100%;height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:0.25rem}
+.device-card .bar-fill{height:100%;border-radius:99px;transition:width 0.6s ease}
+.device-card .bar-fill.low{background:var(--success)}
+.device-card .bar-fill.mid{background:var(--warning)}
+.device-card .bar-fill.high{background:var(--danger)}
 
 /* Toast */
 .toast{position:fixed;top:1rem;right:1rem;background:var(--bg2);border:1px solid var(--accent);border-radius:10px;padding:0.75rem 1rem;color:var(--ink);font-size:0.85rem;transform:translateX(150%);transition:transform 0.3s;z-index:10000;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
@@ -832,7 +837,8 @@ function renderDevices(){
   devices.forEach(function(d,i){
     var card=document.createElement('div');card.className='device-card';
     card.id='dev-card-'+i;
-    card.innerHTML='<div class="header"><span class="name">'+d.name+'</span><span class="status-dot '+d.status+'"></span></div><div class="meta">IP: '+d.ip+'<br>类型: '+d.type+'<br>帧率: '+d.fps+' fps</div><div class="metrics"><div class="metric"><div class="num" id="dev-temp-'+i+'">'+d.temp.toFixed(1)+'°C</div><div class="lab">温度</div></div><div class="metric"><div class="num" id="dev-load-'+i+'">'+Math.floor(d.load)+'%</div><div class="lab">负载</div></div></div>';
+    var loadClass=d.load<50?'low':d.load<80?'mid':'high';
+    card.innerHTML='<div class="header"><span class="name">'+d.name+'</span><span class="status-dot '+d.status+'"></span></div><div class="meta">IP: '+d.ip+'<br>类型: '+d.type+'<br>帧率: '+d.fps+' fps</div><div class="metrics"><div class="metric"><div class="num" id="dev-temp-'+i+'">'+d.temp.toFixed(1)+'°C</div><div class="lab">温度</div></div><div class="metric"><div class="num" id="dev-load-'+i+'">'+Math.floor(d.load)+'%</div><div class="lab">负载</div><div class="bar-track"><div class="bar-fill '+loadClass+'" id="dev-loadbar-'+i+'" style="width:'+Math.floor(d.load)+'%\"></div></div></div></div>';
     list.appendChild(card);
   });
 }
@@ -842,8 +848,13 @@ function updateDeviceMetrics(){
     d.load=Math.max(5,Math.min(95,d.load+(Math.random()-0.5)*4));
     var t=document.getElementById('dev-temp-'+i);
     var l=document.getElementById('dev-load-'+i);
+    var b=document.getElementById('dev-loadbar-'+i);
     if(t)t.textContent=d.temp.toFixed(1)+'°C';
     if(l)l.textContent=Math.floor(d.load)+'%';
+    if(b){
+      b.style.width=Math.floor(d.load)+'%';
+      b.className='bar-fill '+(d.load<50?'low':d.load<80?'mid':'high');
+    }
   });
 }
 
