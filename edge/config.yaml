@@ -1,0 +1,108 @@
+# 智视通 — 边缘计算节点配置
+# 适配硬件: NVIDIA Jetson Orin Nano (JetPack 6.0, TensorRT 8.6)
+
+system:
+  name: "zhishitong-edge-01"
+  node_id: "crossing_a_01"
+  location: "城市路口A-01"
+  log_level: "INFO"
+  max_fps: 25
+  enable_display: false
+
+hardware:
+  platform: "jetson_orin_nano"
+  jetpack_version: "6.0"
+  tensorrt_version: "8.6"
+  cuda_version: "12.2"
+  use_fp16: true
+  use_int8: false
+  max_batch_size: 4
+
+models:
+  detector:
+    name: "yolov8n_vehicle"
+    engine_path: "./models/engines/yolov8n_vehicle.engine"
+    input_size: [640, 640]
+    conf_threshold: 0.45
+    nms_threshold: 0.50
+    labels: ["car", "suv", "truck", "bus", "van", "taxi"]
+    
+  recognizer:
+    name: "lprnet_chinese"
+    engine_path: "./models/engines/lprnet_chinese.engine"
+    input_size: [94, 24]
+    charset: "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ沪京粤苏浙川鲁"
+    
+  classifier:
+    name: "vehicle_type_resnet18"
+    engine_path: "./models/engines/vehicle_type_resnet18.engine"
+    input_size: [224, 224]
+    labels: ["小型客车", "SUV", "大型货车", "中型客车", "面包车", "轿车", "出租车"]
+    
+  denoiser:
+    name: "nafnet_mobile"
+    engine_path: "./models/engines/nafnet_mobile.engine"
+    input_size: [256, 256]
+    enable_auto: false
+    quality_threshold: 65
+    
+pipeline:
+  # 图像预处理
+  preprocess:
+    normalize_mean: [0.485, 0.456, 0.406]
+    normalize_std: [0.229, 0.224, 0.225]
+    
+  # 去噪策略
+  denoise:
+    mode: "on_demand"  # options: real_time, on_demand, off
+    fallback_algo: "bm3d"  # 当 TensorRT 引擎不可用时使用传统算法
+    
+  # 车牌识别 ROI 扩展
+  roi:
+    plate_expand_ratio: 0.15
+    vehicle_crop_padding: 10
+
+video:
+  source_type: "rtsp"  # options: rtsp, usb, file
+  source_url: "rtsp://192.168.1.10/stream1"
+  width: 1920
+  height: 1080
+  fps: 25
+  codec: "h264"
+  # DeepStream 配置
+  deepstream:
+    enable: true
+    config_path: "./configs/deepstream_pipeline.txt"
+    nvdec_enable: true
+    tracker_enable: true
+
+edge:
+  # 本地数据缓存
+  sqlite:
+    db_path: "./data/records.db"
+    max_records: 100000
+    retention_days: 7
+    
+  # MQTT 上报
+  mqtt:
+    enable: true
+    broker_host: "192.168.1.200"
+    broker_port: 1883
+    topic_prefix: "zhishitong/crossing_a_01"
+    client_id: "zst-edge-01"
+    qos: 1
+    reconnect_interval: 5
+    
+  # 离线缓存队列
+  offline:
+    max_queue_size: 5000
+    flush_interval: 30
+    
+# 告警与联动
+alert:
+  low_confidence_threshold: 0.85
+  scene_types:
+    - "rain"
+    - "night"
+    - "backlight"
+  webhook_url: ""

@@ -1,0 +1,37 @@
+# 智视通 — 边缘计算节点依赖
+# Python 3.10+, 适配 Jetson Orin Nano (JetPack 6.0)
+
+# 图像处理
+opencv-python>=4.8.0
+opencv-contrib-python>=4.8.0
+Pillow>=10.0.0
+
+# 数值计算
+numpy>=1.24.0
+scipy>=1.11.0
+
+# 深度学习框架 (模型训练/导出)
+torch>=2.0.0
+torchvision>=0.15.0
+onnx>=1.14.0
+onnxsim>=0.4.0
+
+# TensorRT Python API (JetPack 自带)
+# tensorrt>=8.6.0  # 由 JetPack 提供，勿通过 pip 安装
+
+# 通信与数据
+paho-mqtt>=1.6.0
+pyyaml>=6.0.0
+
+# 视频流处理 (DeepStream 替代方案)
+# GStreamer 由 JetPack 系统提供
+
+# 工具
+requests>=2.31.0
+tqdm>=4.65.0
+
+# 可选: DeepStream Python 绑定
+# pyds>=1.1.8  # DeepStream SDK 自带
+
+# 可选: Jetson 系统监控
+# jtop>=4.2.0  # 仅在 Jetson 上安装: sudo pip3 install jetson-stats
