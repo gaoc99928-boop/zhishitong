@@ -8,7 +8,7 @@
 :root{--bg:#0b1120;--bg2:#151e32;--bg3:#1e293b;--ink:#f1f5f9;--muted:#94a3b8;--rule:#334155;--accent:#76b900;--accent2:#818cf8;--danger:#f87171;--warning:#fbbf24;--success:#34d399;--font:'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;--mono:'SF Mono',monospace;}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--ink);overflow:hidden;overscroll-behavior:contain}
-#app{height:100vh;display:flex;flex-direction:column}
+#app{height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
 /* Login */
 .login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0b1120 0%,#0f1a2e 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
@@ -22,7 +22,7 @@ html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--i
 .login-box .hint{color:var(--muted);font-size:0.75rem;text-align:center;margin-top:1rem}
 
 /* Layout */
-.main-layout{display:flex;flex:1;opacity:0;transition:opacity 0.4s}
+.main-layout{display:flex;flex:1;min-height:0;overflow:hidden;opacity:0;transition:opacity 0.4s}
 .main-layout.show{opacity:1}
 .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:1rem 0}
 .sidebar .brand{padding:0 1.25rem 1rem;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:0.5rem}
