@@ -248,7 +248,7 @@ tr:hover td{background:rgba(118,185,0,0.04)}
               <div class="lab">雨雾场景车辆</div>
             </div>
             <div class="demo-item" onclick="useDemoImage('night')">
-              <div class="thumb">🌙</div>
+              <div class="thumb" style="padding:0;overflow:hidden"><img src="demo-night.jpg" style="width:100%;height:100%;object-fit:cover" alt="夜间低光"></div>
               <div class="lab">夜间低光车辆</div>
             </div>
             <div class="demo-item" onclick="useDemoImage('backlight')">
@@ -571,6 +571,12 @@ function useDemoImage(scene){
     img.src='demo-rain.jpg';
     return;
   }
+  if(scene==='night'){
+    var img=new Image();
+    img.onload=function(){runDemoProcess(img,scene);};
+    img.src='demo-night.jpg';
+    return;
+  }
   var canvas=document.createElement('canvas');
   canvas.width=640;canvas.height=480;
   var ctx=canvas.getContext('2d');
@@ -584,7 +590,6 @@ function useDemoImage(scene){
   ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.fillText('DEMO PLATE',220,266);
   ctx.fillStyle='#64748b';ctx.beginPath();ctx.arc(180,380,30,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(460,380,30,0,Math.PI*2);ctx.fill();
-  if(scene==='night'){ctx.fillStyle='rgba(15,23,42,0.6)';ctx.fillRect(0,0,640,480);}
   if(scene==='backlight'){ctx.fillStyle='rgba(255,255,255,0.25)';ctx.fillRect(0,0,640,200);}
   var img=new Image();
   img.onload=function(){runDemoProcess(img,scene);};
